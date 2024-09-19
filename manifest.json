@@ -1,19 +1,19 @@
 {
-  "name": "Darts Game",
-  "short_name": "Darts",
-  "description": "A simple darts game web app.",
-  "start_url": "/",
+  "name": "Darts Game Score",
+  "short_name": "Darts Score",
+  "description": "A simple darts game web app for score counting.",
+  "start_url": "/Darts.html",
   "display": "standalone",
   "background_color": "#f5f5f5",
   "theme_color": "#141e50",
   "icons": [
     {
-      "src": "/icon-192x192.png",
+      "src": "/dart-board-svgrepo-com-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/dart-board-svgrepo-com-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
