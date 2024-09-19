@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darts Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+            text-align: left;
+        }
+        h1 {
+            color: #141e50;
+            font-size: 36px;
+            margin-top: 0;
+        }
+        .reload-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #ffb800;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        .reload-button:hover {
+            background-color: #d99d00;
+        }
+        .player {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+        }
+        .player-name {
+            font-weight: bold;
+            font-size: 20px;
+            color: #141e50;
+            margin-right: 20px;
+            flex: 1;
+        }
+        .score {
+            font-size: 20px;
+            font-weight: bold;
+            color: #141e50;
+            text-align: right;
+        }
+        #add-player, #submit-score {
+            background-color: #ffb800;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #add-player:hover, #submit-score:hover {
+            background-color: #d99d00;
+        }
+        .input-section {
+            margin-top: 20px;
+        }
+        .input-field {
+            width: 150px;
+            margin-right: 10px;
+            padding: 5px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input[name="player-name"] {
+            padding: 8px;
+            font-size: 16px;
+            margin-right: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #players-list {
+            margin-top: 20px;
+            display: table;
+        }
+        .player-row {
+            display: table-row;
+        }
+        .player-cell {
+            display: table-cell;
+            padding: 5px 10px;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        .player-name {
+            width: 150px;
+        }
+        .score {
+            width: 80px;
+            text-align: right;
+        }
+        .highlight {
+            background-color: #fff1cc;
+        }
+    </style>
+</head>
+<body>
+
+    <button class="reload-button" onclick="reloadPage()">↻</button>
+
+    <h1>Darts Game</h1>
+
+    <!-- Add player section -->
+    <input type="text" id="new-player-name" name="player-name" placeholder="Enter player name" />
+    <button id="add-player">+ Add Player</button>
+
+    <!-- Player list section -->
+    <div id="players-list" class="player-table"></div>
+
+    <!-- Input section for reducing score -->
+    <div class="input-section">
+        <input type="number" id="score-input" class="input-field" placeholder="Score">
+        <button id="submit-score">Enter</button>
+    </div>
+
+    <script>
+    
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDeXljwEAJDJZ-5IXeO-tCXoM0xLJJyCPk",
+  authDomain: "darts-game-score.firebaseapp.com",
+  projectId: "darts-game-score",
+  storageBucket: "darts-game-score.appspot.com",
+  messagingSenderId: "255641491498",
+  appId: "1:255641491498:web:f29b65ee8486f19857cb53",
+  measurementId: "G-Q1Z7KHXR7J"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        let playerId = 0;
+        let selectedPlayerId = null;
+
+        // Function to add a new player
+        function addPlayer() {
+            const playerName = document.getElementById('new-player-name').value;
+
+            if (!playerName) {
+                alert('Please enter a player name.');
+                return;
+            }
+
+            playerId++;
+
+            // Create a new row for the player
+            const playerRow = document.createElement('div');
+            playerRow.className = 'player-row';
+            playerRow.id = `player-${playerId}`;
+
+            // Create radio button to select the player
+            const radioButton = document.createElement('input');
+            radioButton.type = 'radio';
+            radioButton.name = 'selected-player';
+            radioButton.value = playerId;
+
+            // Add event listener to select the player when clicked
+            radioButton.addEventListener('change', function() {
+                selectPlayer(this.value);
+            });
+
+            // Create name element
+            const playerNameElement = document.createElement('div');
+            playerNameElement.className = 'player-cell player-name';
+            playerNameElement.innerText = playerName;
+
+            // Create score element
+            const playerScoreElement = document.createElement('div');
+            playerScoreElement.className = 'player-cell score';
+            playerScoreElement.innerText = '501';
+
+            // Append the radio button, name, and score to the row
+            playerRow.appendChild(radioButton);
+            playerRow.appendChild(playerNameElement);
+            playerRow.appendChild(playerScoreElement);
+
+            // Add the row to the player list
+            document.getElementById('players-list').appendChild(playerRow);
+
+            // Clear the name input field after adding the player
+            document.getElementById('new-player-name').value = '';
+
+            // Auto-select player 1 if it exists
+            const firstPlayerRadio = document.querySelector('input[name="selected-player"]');
+            if (firstPlayerRadio) {
+                firstPlayerRadio.checked = true;
+                selectPlayer(firstPlayerRadio.value);
+            }
+        }
+
+        // Function to select a player
+        function selectPlayer(id) {
+            // Remove highlight class from all player rows
+            const allRows = document.querySelectorAll('.player-row');
+            allRows.forEach(row => row.classList.remove('highlight'));
+
+            // Set the new selected player ID
+            selectedPlayerId = id;
+            console.log(`Player ${id} selected!`);
+
+            // Add highlight class to the selected player row
+            const selectedRow = document.getElementById(`player-${id}`);
+            selectedRow.classList.add('highlight');
+        }
+
+        // Function to update player score
+        function updateScore() {
+            if (selectedPlayerId === null) {
+                alert('Please select a player first.');
+                return;
+            }
+
+            const inputScore = document.getElementById('score-input').value;
+
+            if (!inputScore) {
+                alert('Please enter a valid score.');
+                return;
+            }
+
+            // Find the selected player row and update the score
+            const playerRow = document.getElementById(`player-${selectedPlayerId}`);
+            const scoreElement = playerRow.querySelector('.score');
+            const currentScore = parseInt(scoreElement.innerText);
+            const newScore = currentScore - parseInt(inputScore);
+
+            // Update the score, ensuring it doesn't go below 0
+            scoreElement.innerText = newScore < 0 ? 0 : newScore;
+
+            // Clear the input field after submission
+            document.getElementById('score-input').value = '';
+
+            // Auto-select the next player
+            const allRadios = document.querySelectorAll('input[name="selected-player"]');
+            const selectedIndex = Array.from(allRadios).findIndex(radio => radio.value == selectedPlayerId);
+            
+            // Deselect the current player
+            allRadios[selectedIndex].checked = false;
+
+            // Determine the next index
+            const nextIndex = (selectedIndex + 1) % allRadios.length;
+
+            // Select the next player
+            allRadios[nextIndex].checked = true;
+            selectPlayer(allRadios[nextIndex].value); // Update selectedPlayerId
+        }
+
+        // Function to handle Enter key press for adding a player
+        function handleAddPlayerKeyPress(event) {
+            if (event.key === 'Enter') {
+                addPlayer(); // Call addPlayer function when Enter is pressed
+                event.preventDefault(); // Prevent default action of Enter key
+            }
+        }
+
+        // Function to handle Enter key press for submitting score
+        function handleScoreKeyPress(event) {
+            if (event.key === 'Enter' && document.activeElement.id === 'score-input') {
+                updateScore(); // Call updateScore function when Enter is pressed
+                event.preventDefault(); // Prevent default action of Enter key
+            }
+        }
+
+        // Function to reload the page
+        function reloadPage() {
+            location.reload(); // Reload the page
+        }
+
+        // Add player button event listener
+        document.getElementById('add-player').addEventListener('click', addPlayer);
+
+        // Submit score button event listener
+        document.getElementById('submit-score').addEventListener('click', updateScore);
+
+        // Attach event listener to the player name input field to handle Enter key press
+        document.getElementById('new-player-name').addEventListener('keydown', handleAddPlayerKeyPress);
+        
+        // Attach event listener to the score input field to handle Enter key press
+        document.getElementById('score-input').addEventListener('keydown', handleScoreKeyPress);
+    </script>
+</body>
+</html>
