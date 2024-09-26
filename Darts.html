@@ -334,10 +334,10 @@
 
         // Create the install button and append it to the body
         const installButton = document.createElement('button');
-        installButton.innerHTML = '⬆ Install';
-        installButton.style.position = 'absolute';
-        installButton.style.top = '20px';
-        installButton.style.left = '60px'; // Adjust the position to not overlap with the reload button
+        installButton.innerHTML = 'Install';
+        installButton.style.position = 'fixed';
+        installButton.style.bottom = '20px';
+        installButton.style.right = '20px';
         installButton.style.backgroundColor = '#007bff';
         installButton.style.color = '#fff';
         installButton.style.padding = '10px 20px';
@@ -345,11 +345,11 @@
         installButton.style.cursor = 'pointer';
         installButton.style.fontSize = '16px';
         installButton.style.borderRadius = '5px';
+        installButton.style.transition = 'transform 0.5s ease, opacity 0.5s ease'; // Add transition for smooth movement
         installButton.style.display = 'none'; // Hidden by default
         document.body.appendChild(installButton);
 
-
-        // Event listener for install button (handled outside of the prompt event)
+        // Event listener for install button
         installButton.addEventListener('click', () => {
             // Hide the install button
             installButton.style.display = 'none';
@@ -373,8 +373,17 @@
         // Listen for the beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); // Prevent the mini-infobar from appearing
-            deferredPrompt = e; // Stash the event
+            deferredPrompt = e; // Save the event
             installButton.style.display = 'block'; // Show the install button
+
+            // Automatically hide the button after 5 seconds with a downward movement
+            setTimeout(() => {
+                installButton.style.transform = 'translateY(20px)'; // Move the button down by 20px
+                installButton.style.opacity = '0'; // Fade out
+                setTimeout(() => {
+                    installButton.style.display = 'none'; // Fully hide the button after animation completes
+                }, 500); // Wait for the animation to complete before hiding
+            }, 5000); // 5-second delay before starting the hide animation
         });
 
         // Optionally, hide the button if the app is already installed
@@ -382,6 +391,7 @@
             console.log('PWA was installed');
             installButton.style.display = 'none';
         });
+
     </script>
 </body>
 
