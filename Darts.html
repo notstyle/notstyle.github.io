@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/manifest.json"> <!-- Link to manifest file -->
+    <link rel="manifest" href="/manifest.json">
     <title>Darts Game</title>
     <style>
         body {
@@ -15,11 +16,13 @@
             box-sizing: border-box;
             text-align: left;
         }
+
         h1 {
             color: #141e50;
             font-size: 36px;
             margin-top: 0;
         }
+
         .reload-button {
             position: absolute;
             top: 20px;
@@ -32,15 +35,18 @@
             font-size: 16px;
             border-radius: 5px;
         }
+
         .reload-button:hover {
             background-color: #d99d00;
         }
+
         .player {
             display: flex;
             align-items: center;
             justify-content: flex-start;
             margin-bottom: 10px;
         }
+
         .player-name {
             font-weight: bold;
             font-size: 20px;
@@ -48,13 +54,16 @@
             margin-right: 20px;
             flex: 1;
         }
+
         .score {
             font-size: 20px;
             font-weight: bold;
             color: #141e50;
             text-align: right;
         }
-        #add-player, #submit-score {
+
+        #add-player,
+        #submit-score {
             background-color: #ffb800;
             color: #fff;
             padding: 10px 20px;
@@ -64,12 +73,16 @@
             border-radius: 5px;
             margin-right: 10px;
         }
-        #add-player:hover, #submit-score:hover {
+
+        #add-player:hover,
+        #submit-score:hover {
             background-color: #d99d00;
         }
+
         .input-section {
             margin-top: 20px;
         }
+
         .input-field {
             width: 150px;
             margin-right: 10px;
@@ -78,6 +91,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         input[name="player-name"] {
             padding: 8px;
             font-size: 16px;
@@ -86,53 +100,59 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         #players-list {
             margin-top: 20px;
             display: table;
         }
+
         .player-row {
             display: table-row;
         }
+
         .player-cell {
             display: table-cell;
             padding: 5px 10px;
         }
+
         input[type="radio"] {
             margin-right: 10px;
         }
+
         .player-name {
             width: 150px;
         }
+
         .score {
             width: 80px;
             text-align: right;
         }
+
         .highlight {
             background-color: #fff1cc;
         }
     </style>
 </head>
+
 <body>
-
     <button class="reload-button" onclick="reloadPage()">↻</button>
-
     <h1>Darts Game</h1>
-
     <!-- Add player section -->
     <input type="text" id="new-player-name" name="player-name" placeholder="Enter player name" />
     <button id="add-player">+ Add Player</button>
-
     <!-- Player list section -->
     <div id="players-list" class="player-table"></div>
-
     <!-- Input section for reducing score -->
     <div class="input-section">
         <input type="number" id="score-input" class="input-field" placeholder="Score">
         <button id="submit-score">Enter</button>
     </div>
-
+    <!-- Version information -->
+    <div style="position: fixed; bottom: 0; left: 0; margin: 10px; color: grey; font-style: italic; font-size: 12px;">
+        version 1.0.3, date: 2024-09-26
+    </div>
     <script>
-    
+
 
         let playerId = 0;
         let selectedPlayerId = null;
@@ -160,7 +180,7 @@
             radioButton.value = playerId;
 
             // Add event listener to select the player when clicked
-            radioButton.addEventListener('change', function() {
+            radioButton.addEventListener('change', function () {
                 selectPlayer(this.value);
             });
 
@@ -184,6 +204,9 @@
 
             // Clear the name input field after adding the player
             document.getElementById('new-player-name').value = '';
+
+            // Set focus back to the player name input field
+            document.getElementById('new-player-name').focus();
 
             // Auto-select player 1 if it exists
             const firstPlayerRadio = document.querySelector('input[name="selected-player"]');
@@ -232,12 +255,18 @@
             scoreElement.innerText = newScore < 0 ? 0 : newScore;
 
             // Clear the input field after submission
+
             document.getElementById('score-input').value = '';
 
-            // Auto-select the next player
+            // Set focus back to the score input field
+            document.getElementById('score-input').focus();
+
+            // Auto - select the next player 
+
             const allRadios = document.querySelectorAll('input[name="selected-player"]');
+
             const selectedIndex = Array.from(allRadios).findIndex(radio => radio.value == selectedPlayerId);
-            
+
             // Deselect the current player
             allRadios[selectedIndex].checked = false;
 
@@ -271,28 +300,89 @@
         }
 
         // Add player button event listener
-        document.getElementById('add-player').addEventListener('click', addPlayer);
+        document.getElementById('add-player').addEventListener('click', function () {
+            addPlayer();
+            // Set focus on the player name input field
+            document.getElementById('new-player-name').focus();
+        });
 
         // Submit score button event listener
-        document.getElementById('submit-score').addEventListener('click', updateScore);
+        document.getElementById('submit-score').addEventListener('click', function () {
+            updateScore();
+            // Set focus on the score input field
+            document.getElementById('score-input').focus();
+        });
 
         // Attach event listener to the player name input field to handle Enter key press
         document.getElementById('new-player-name').addEventListener('keydown', handleAddPlayerKeyPress);
-        
+
         // Attach event listener to the score input field to handle Enter key press
         document.getElementById('score-input').addEventListener('keydown', handleScoreKeyPress);
-                // Register the service worker
+        // Register the service worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('Service Worker registered with scope:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
-                });
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
             });
+        }
+        let deferredPrompt;
+
+        // Create the install button and append it to the body
+        const installButton = document.createElement('button');
+        installButton.innerHTML = '⬆ Install';
+        installButton.style.position = 'absolute';
+        installButton.style.top = '20px';
+        installButton.style.left = '60px'; // Adjust the position to not overlap with the reload button
+        installButton.style.backgroundColor = '#007bff';
+        installButton.style.color = '#fff';
+        installButton.style.padding = '10px 20px';
+        installButton.style.border = 'none';
+        installButton.style.cursor = 'pointer';
+        installButton.style.fontSize = '16px';
+        installButton.style.borderRadius = '5px';
+        installButton.style.display = 'none'; // Hidden by default
+        document.body.appendChild(installButton);
+
+
+        // Event listener for install button (handled outside of the prompt event)
+        installButton.addEventListener('click', () => {
+            // Hide the install button
+            installButton.style.display = 'none';
+
+            // Show the install prompt
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null; // Clear the deferred prompt
+                });
             }
+        });
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Prevent the mini-infobar from appearing
+            deferredPrompt = e; // Stash the event
+            installButton.style.display = 'block'; // Show the install button
+        });
+
+        // Optionally, hide the button if the app is already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installButton.style.display = 'none';
+        });
     </script>
 </body>
+
 </html>
