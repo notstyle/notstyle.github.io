@@ -232,6 +232,7 @@
 
             // Set focus back to the player name input field
             document.getElementById('new-player-name').focus();
+
             // Freeze the score selection after adding the first player
             if (!scoreSelectionFrozen) {
                 document.getElementById('score-select').disabled = true;
@@ -244,7 +245,73 @@
                 firstPlayerRadio.checked = true;
                 selectPlayer(firstPlayerRadio.value);
             }
+
+            // Save the updated player data to localStorage
+            savePlayersToLocalStorage();
         }
+
+
+        // Function to save players to localStorage
+        function savePlayersToLocalStorage() {
+            const players = [];
+            const playerRows = document.querySelectorAll('.player-row');
+            playerRows.forEach(row => {
+                const playerId = row.id.split('-')[1];
+                const playerName = row.querySelector('.player-name').innerText;
+                const playerScore = row.querySelector('.score').innerText;
+                players.push({ id: playerId, name: playerName, score: playerScore });
+            });
+            localStorage.setItem('players', JSON.stringify(players));
+        }
+
+        // Function to load players from localStorage
+        function loadPlayersFromLocalStorage() {
+            const savedPlayers = JSON.parse(localStorage.getItem('players'));
+            if (savedPlayers) {
+                savedPlayers.forEach(player => {
+                    const playerRow = document.createElement('div');
+                    playerRow.className = 'player-row';
+                    playerRow.id = `player-${player.id}`;
+
+                    const radioButton = document.createElement('input');
+                    radioButton.type = 'radio';
+                    radioButton.name = 'selected-player';
+                    radioButton.value = player.id;
+
+                    radioButton.addEventListener('change', function () {
+                        selectPlayer(this.value);
+                    });
+
+                    const playerNameElement = document.createElement('div');
+                    playerNameElement.className = 'player-cell player-name';
+                    playerNameElement.innerText = player.name;
+
+                    const playerScoreElement = document.createElement('div');
+                    playerScoreElement.className = 'player-cell score';
+                    playerScoreElement.innerText = player.score;
+
+                    playerRow.appendChild(radioButton);
+                    playerRow.appendChild(playerNameElement);
+                    playerRow.appendChild(playerScoreElement);
+
+                    document.getElementById('players-list').appendChild(playerRow);
+                });
+
+                // Auto-select player 1 if it exists
+                const firstPlayerRadio = document.querySelector('input[name="selected-player"]');
+                if (firstPlayerRadio) {
+                    firstPlayerRadio.checked = true;
+                    selectPlayer(firstPlayerRadio.value);
+                }
+            }
+        }
+
+
+        // DOMContentLoaded event to load players when the page is loaded
+        document.addEventListener('DOMContentLoaded', function () {
+            loadPlayersFromLocalStorage();
+        });
+
 
         // Function to select a player
         function selectPlayer(id) {
@@ -284,17 +351,17 @@
             // Update the score, ensuring it doesn't go below 0
             scoreElement.innerText = newScore < 0 ? 0 : newScore;
 
-            // Clear the input field after submission
+            // Save the updated score to localStorage
+            savePlayersToLocalStorage();
 
+            // Clear the input field after submission
             document.getElementById('score-input').value = '';
 
             // Set focus back to the score input field
             document.getElementById('score-input').focus();
 
-            // Auto - select the next player 
-
+            // Auto-select the next player
             const allRadios = document.querySelectorAll('input[name="selected-player"]');
-
             const selectedIndex = Array.from(allRadios).findIndex(radio => radio.value == selectedPlayerId);
 
             // Deselect the current player
@@ -307,6 +374,7 @@
             allRadios[nextIndex].checked = true;
             selectPlayer(allRadios[nextIndex].value); // Update selectedPlayerId
         }
+
 
         // Function to handle Enter key press for adding a player
         function handleAddPlayerKeyPress(event) {
@@ -324,9 +392,10 @@
             }
         }
 
-        // Function to reload the page
+        // Function to reload the page and clear localStorage
         function reloadPage() {
-            location.reload(); // Reload the page
+            localStorage.clear(); // Clear localStorage data
+            location.reload();    // Reload the page to start fresh
         }
 
         // Add player button event listener
