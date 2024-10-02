@@ -131,35 +131,60 @@
         .highlight {
             background-color: #fff1cc;
         }
+
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-right: 10px;
+            width: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        select:disabled {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
 <body>
     <button class="reload-button" onclick="reloadPage()">↻</button>
     <h1>Darts Game</h1>
+
+    <!-- Add the 501/301 selection -->
+    <select id="score-select">
+        <option value="501">501</option>
+        <option value="301">301</option>
+    </select>
+
     <!-- Add player section -->
     <input type="text" id="new-player-name" name="player-name" placeholder="Enter player name" />
     <button id="add-player">+ Add Player</button>
+
     <!-- Player list section -->
     <div id="players-list" class="player-table"></div>
+
     <!-- Input section for reducing score -->
     <div class="input-section">
         <input type="number" id="score-input" class="input-field" placeholder="Score">
         <button id="submit-score">Enter</button>
     </div>
+
     <!-- Version information -->
     <div style="position: fixed; bottom: 0; left: 0; margin: 10px; color: grey; font-style: italic; font-size: 12px;">
         version 1.0.3, date: 2024-09-26
     </div>
+
     <script>
-
-
         let playerId = 0;
         let selectedPlayerId = null;
+        let scoreSelectionFrozen = false; // To track if score selection is frozen
 
         // Function to add a new player
         function addPlayer() {
             const playerName = document.getElementById('new-player-name').value;
+            const selectedScore = document.getElementById('score-select').value;
 
             if (!playerName) {
                 alert('Please enter a player name.');
@@ -192,7 +217,7 @@
             // Create score element
             const playerScoreElement = document.createElement('div');
             playerScoreElement.className = 'player-cell score';
-            playerScoreElement.innerText = '501';
+            playerScoreElement.innerText = selectedScore; // Set score based on the selection
 
             // Append the radio button, name, and score to the row
             playerRow.appendChild(radioButton);
@@ -207,6 +232,11 @@
 
             // Set focus back to the player name input field
             document.getElementById('new-player-name').focus();
+            // Freeze the score selection after adding the first player
+            if (!scoreSelectionFrozen) {
+                document.getElementById('score-select').disabled = true;
+                scoreSelectionFrozen = true;
+            }
 
             // Auto-select player 1 if it exists
             const firstPlayerRadio = document.querySelector('input[name="selected-player"]');
