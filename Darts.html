@@ -63,7 +63,8 @@
         }
 
         #add-player,
-        #submit-score {
+        #submit-score,
+        .submit {
             background-color: #ffb800;
             color: #fff;
             padding: 10px 20px;
@@ -145,6 +146,84 @@
             background-color: #e0e0e0;
             cursor: not-allowed;
         }
+
+        /* Popup window styles */
+        #winner-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #winner-popup .popup-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        #winner-popup h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #141e50;
+        }
+
+        /* Firework animation */
+        @keyframes firework {
+            0% {
+                transform: scale(0.1);
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        .firework {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            background-color: #ffb800;
+            animation: firework 1s ease-out infinite;
+        }
+
+        .firework-1 {
+            top: -50px;
+            left: -50px;
+            animation-delay: 0.1s;
+        }
+
+        .firework-2 {
+            top: -70px;
+            right: -50px;
+            animation-delay: 0.2s;
+        }
+
+        .firework-3 {
+            bottom: -50px;
+            left: -70px;
+            animation-delay: 0.3s;
+        }
+
+        .firework-4 {
+            bottom: -70px;
+            right: -50px;
+            animation-delay: 0.4s;
+        }
     </style>
 </head>
 
@@ -173,7 +252,7 @@
 
     <!-- Version information -->
     <div style="position: fixed; bottom: 0; left: 0; margin: 10px; color: grey; font-style: italic; font-size: 12px;">
-        version 1.1.0, date: 2024-10-02
+        version 1.2.0, date: 2024-10-03
     </div>
 
     <script>
@@ -262,6 +341,9 @@
                 players.push({ id: playerId, name: playerName, score: playerScore });
             });
             localStorage.setItem('players', JSON.stringify(players));
+
+            // Save scoreSelectionFrozen state
+            localStorage.setItem('scoreSelectionFrozen', JSON.stringify(scoreSelectionFrozen));
         }
 
         // Function to load players from localStorage
@@ -304,8 +386,14 @@
                     selectPlayer(firstPlayerRadio.value);
                 }
             }
-        }
 
+            // Load scoreSelectionFrozen state
+            const frozenState = JSON.parse(localStorage.getItem('scoreSelectionFrozen'));
+            if (frozenState !== null) {
+                scoreSelectionFrozen = frozenState; // Restore the state
+                document.getElementById('score-select').disabled = scoreSelectionFrozen; // Disable the score selection if frozen
+            }
+        }
 
         // DOMContentLoaded event to load players when the page is loaded
         document.addEventListener('DOMContentLoaded', function () {
@@ -328,16 +416,15 @@
             selectedRow.classList.add('highlight');
         }
 
-        // Function to update player score
         function updateScore() {
             if (selectedPlayerId === null) {
                 alert('Please select a player first.');
                 return;
             }
 
-            const inputScore = document.getElementById('score-input').value;
+            const inputScore = parseInt(document.getElementById('score-input').value);
 
-            if (!inputScore) {
+            if (isNaN(inputScore) || inputScore < 0) {
                 alert('Please enter a valid score.');
                 return;
             }
@@ -346,19 +433,28 @@
             const playerRow = document.getElementById(`player-${selectedPlayerId}`);
             const scoreElement = playerRow.querySelector('.score');
             const currentScore = parseInt(scoreElement.innerText);
-            const newScore = currentScore - parseInt(inputScore);
+
+            // Check if entered score exceeds the remaining score
+            if (inputScore > currentScore) {
+                alert(`The score you entered exceeds the remaining score (${currentScore}). Please enter a valid score.`);
+                return;
+            }
+
+            const newScore = currentScore - inputScore;
 
             // Update the score, ensuring it doesn't go below 0
             scoreElement.innerText = newScore < 0 ? 0 : newScore;
+
+            // Trigger the winner popup if the score reaches 0
+            if (newScore === 0) {
+                showWinnerPopup(playerRow.querySelector('.player-name').innerText);
+            }
 
             // Save the updated score to localStorage
             savePlayersToLocalStorage();
 
             // Clear the input field after submission
             document.getElementById('score-input').value = '';
-
-            // Set focus back to the score input field
-            document.getElementById('score-input').focus();
 
             // Auto-select the next player
             const allRadios = document.querySelectorAll('input[name="selected-player"]');
@@ -374,6 +470,7 @@
             allRadios[nextIndex].checked = true;
             selectPlayer(allRadios[nextIndex].value); // Update selectedPlayerId
         }
+
 
 
         // Function to handle Enter key press for adding a player
@@ -491,7 +588,47 @@
             installButton.style.display = 'none';
         });
 
+        // Flag to track if the winner popup has already been shown
+        let isWinnerDeclared = false;
+
+        // Function to show the winner popup
+        function showWinnerPopup(winnerName) {
+            if (!isWinnerDeclared) {  // Check if a winner has already been declared
+                const winnerPopup = document.getElementById('winner-popup');
+                document.getElementById('winner-name').innerText = winnerName;
+                winnerPopup.style.display = 'flex';  // Show the popup
+
+                // Set flag to true to ensure the popup is shown only once
+                isWinnerDeclared = true;
+
+                // Optionally close the popup automatically after 5 seconds
+                setTimeout(closeWinnerPopup, 10000);
+            }
+        }
+
+        // Function to close the winner popup
+        function closeWinnerPopup() {
+            const winnerPopup = document.getElementById('winner-popup');
+            winnerPopup.style.display = 'none';  // Hide the popup
+        }
+
+        // Trigger the winner popup if the score reaches 0
+        if (newScore === 0) {
+            showWinnerPopup(playerRow.querySelector('.player-name').innerText);
+        }
+
     </script>
+    <div id="winner-popup">
+        <div class="popup-content">
+            <h2>Congratulations <span id="winner-name"></span>!</h2>
+            <p>You have won the game!</p>
+            <div class="firework firework-1"></div>
+            <div class="firework firework-2"></div>
+            <div class="firework firework-3"></div>
+            <div class="firework firework-4"></div>
+            <button class="submit" onclick="closeWinnerPopup()">Close</button>
+        </div>
+    </div>
 </body>
 
 </html>
