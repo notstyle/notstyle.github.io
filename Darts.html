@@ -63,7 +63,8 @@
         }
 
         #add-player,
-        #submit-score, .submit {
+        #submit-score,
+        .submit {
             background-color: #ffb800;
             color: #fff;
             padding: 10px 20px;
@@ -340,6 +341,9 @@
                 players.push({ id: playerId, name: playerName, score: playerScore });
             });
             localStorage.setItem('players', JSON.stringify(players));
+
+            // Save scoreSelectionFrozen state
+            localStorage.setItem('scoreSelectionFrozen', JSON.stringify(scoreSelectionFrozen));
         }
 
         // Function to load players from localStorage
@@ -382,8 +386,14 @@
                     selectPlayer(firstPlayerRadio.value);
                 }
             }
-        }
 
+            // Load scoreSelectionFrozen state
+            const frozenState = JSON.parse(localStorage.getItem('scoreSelectionFrozen'));
+            if (frozenState !== null) {
+                scoreSelectionFrozen = frozenState; // Restore the state
+                document.getElementById('score-select').disabled = scoreSelectionFrozen; // Disable the score selection if frozen
+            }
+        }
 
         // DOMContentLoaded event to load players when the page is loaded
         document.addEventListener('DOMContentLoaded', function () {
