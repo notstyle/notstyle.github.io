@@ -63,7 +63,7 @@
         }
 
         #add-player,
-        #submit-score {
+        #submit-score, .submit {
             background-color: #ffb800;
             color: #fff;
             padding: 10px 20px;
@@ -578,18 +578,35 @@
             installButton.style.display = 'none';
         });
 
+        // Flag to track if the winner popup has already been shown
+        let isWinnerDeclared = false;
+
         // Function to show the winner popup
         function showWinnerPopup(winnerName) {
-            const winnerPopup = document.getElementById('winner-popup');
-            document.getElementById('winner-name').innerText = winnerName;
-            winnerPopup.style.display = 'flex';
+            if (!isWinnerDeclared) {  // Check if a winner has already been declared
+                const winnerPopup = document.getElementById('winner-popup');
+                document.getElementById('winner-name').innerText = winnerName;
+                winnerPopup.style.display = 'flex';  // Show the popup
+
+                // Set flag to true to ensure the popup is shown only once
+                isWinnerDeclared = true;
+
+                // Optionally close the popup automatically after 5 seconds
+                setTimeout(closeWinnerPopup, 10000);
+            }
         }
 
         // Function to close the winner popup
         function closeWinnerPopup() {
             const winnerPopup = document.getElementById('winner-popup');
-            winnerPopup.style.display = 'none';
+            winnerPopup.style.display = 'none';  // Hide the popup
         }
+
+        // Trigger the winner popup if the score reaches 0
+        if (newScore === 0) {
+            showWinnerPopup(playerRow.querySelector('.player-name').innerText);
+        }
+
     </script>
     <div id="winner-popup">
         <div class="popup-content">
@@ -599,7 +616,7 @@
             <div class="firework firework-2"></div>
             <div class="firework firework-3"></div>
             <div class="firework firework-4"></div>
-            <button onclick="closeWinnerPopup()">Close</button>
+            <button class="submit" onclick="closeWinnerPopup()">Close</button>
         </div>
     </div>
 </body>
