@@ -147,27 +147,29 @@
             cursor: not-allowed;
         }
 
-        /* Popup window styles */
-        #winner-popup {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
+/* Popup window styles */
+#winner-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
 
-        #winner-popup .popup-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            position: relative;
-        }
+#winner-popup .popup-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    max-width: 90%; /* Limit max width for mobile */
+    margin: 0 auto; /* Center align */
+}
 
         #winner-popup h2 {
             font-size: 36px;
@@ -192,38 +194,40 @@
             }
         }
 
-        .firework {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            position: absolute;
-            background-color: #ffb800;
-            animation: firework 1s ease-out infinite;
-        }
+/* Adjust firework positioning */
+.firework {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: absolute;
+    background-color: #ffb800;
+    animation: firework 1s ease-out infinite;
+}
 
-        .firework-1 {
-            top: -50px;
-            left: -50px;
-            animation-delay: 0.1s;
-        }
+/* Adjust firework positions to be more visible */
+.firework-1 {
+    top: -30px; /* Adjust position */
+    left: 10%;  /* Adjust position */
+    animation-delay: 0.1s;
+}
 
-        .firework-2 {
-            top: -70px;
-            right: -50px;
-            animation-delay: 0.2s;
-        }
+.firework-2 {
+    top: -30px; /* Adjust position */
+    right: 10%; /* Adjust position */
+    animation-delay: 0.2s;
+}
 
-        .firework-3 {
-            bottom: -50px;
-            left: -70px;
-            animation-delay: 0.3s;
-        }
+.firework-3 {
+    bottom: -30px; /* Adjust position */
+    left: 10%;  /* Adjust position */
+    animation-delay: 0.3s;
+}
 
-        .firework-4 {
-            bottom: -70px;
-            right: -50px;
-            animation-delay: 0.4s;
-        }
+.firework-4 {
+    bottom: -30px; /* Adjust position */
+    right: 10%; /* Adjust position */
+    animation-delay: 0.4s;
+}
     </style>
 </head>
 
@@ -252,7 +256,7 @@
 
     <!-- Version information -->
     <div style="position: fixed; bottom: 0; left: 0; margin: 10px; color: grey; font-style: italic; font-size: 12px;">
-        version 1.2.0, date: 2024-10-03
+        version 1.2.1, date: 2024-10-03
     </div>
 
     <script>
