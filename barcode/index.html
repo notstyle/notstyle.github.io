@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EAN-13 Barcode Generator</title>
+  <link rel="stylesheet" href="https://notstyle.github.io/Darts.css">
+  <style>
+    body {
+      background-color: #202020;
+      color: #FFFFFF;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+      background-color: #2A2A2A;
+      border-radius: 8px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+      max-width: 400px;
+      width: 90%;
+    }
+    h1 {
+      color: #FFCC00;
+      margin-bottom: 20px;
+    }
+    p {
+      color: #CCCCCC;
+      margin-bottom: 20px;
+    }
+    input, button {
+      width: calc(100% - 20px);
+      margin: 10px auto;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    input {
+      background-color: #3A3A3A;
+      color: #FFFFFF;
+    }
+    button {
+      background-color: #FFCC00;
+      color: #202020;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #E6B800;
+    }
+    canvas {
+      margin-top: 20px;
+      border: 1px solid #444;
+      background-color: #FFFFFF;
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #888;
+    }
+    footer a {
+      color: #FFCC00;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EAN-13 Barcode Generator</h1>
+    <p>Enter a 12-digit number to generate a barcode. The 13th digit will be calculated automatically.</p>
+    <input type="text" id="eanInput" placeholder="Enter 12-digit number" maxlength="12">
+    <button onclick="generateBarcode()">Generate Barcode</button>
+    <div id="barcodeContainer">
+      <canvas id="barcodeCanvas"></canvas>
+    </div>
+    <footer>
+      <p>Powered by <a href="https://github.com/lindell/JsBarcode" target="_blank">JsBarcode</a></p>
+    </footer>
+  </div>
+
+  <!-- Local JsBarcode Library with Versioning -->
+  <script src="JsBarcode.all.min.js?v=1.0.0"></script>
+  <script>
+    function calculateChecksum(number) {
+      let sum = 0;
+      for (let i = 0; i < number.length; i++) {
+        let digit = parseInt(number[i]);
+        sum += (i % 2 === 0) ? digit : digit * 3;
+      }
+      return (10 - (sum % 10)) % 10;
+    }
+
+    function generateBarcode() {
+      const eanInput = document.getElementById("eanInput").value;
+      if (!/^\d{12}$/.test(eanInput)) {
+        alert("Please enter a valid 12-digit number.");
+        return;
+      }
+
+      const checksum = calculateChecksum(eanInput);
+      const ean13 = eanInput + checksum;
+
+      const canvas = document.getElementById("barcodeCanvas");
+      JsBarcode(canvas, ean13, {
+        format: "EAN13",
+        displayValue: true,
+        fontSize: 18,
+      });
+    }
+  </script>
+</body>
+</html>
