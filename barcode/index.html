@@ -59,6 +59,15 @@
       border: 1px solid #444;
       background-color: #FFFFFF;
     }
+    a {
+      color: #FFCC00;
+      text-decoration: none;
+      margin-top: 20px;
+      display: block;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
     footer {
       margin-top: 20px;
       font-size: 14px;
@@ -71,16 +80,21 @@
     footer a:hover {
       text-decoration: underline;
     }
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>EAN-13 Barcode Generator</h1>
-    <p>Enter a 12-digit number to generate a barcode. The 13th digit will be calculated automatically.</p>
+    <p id="instructions">Enter a 12-digit number to generate a barcode. The 13th digit will be calculated automatically.</p>
     <input type="text" id="eanInput" placeholder="Enter 12-digit number" maxlength="12">
-    <button onclick="generateBarcode()">Generate Barcode</button>
+    <button id="generateButton" onclick="generateBarcode()">Generate Barcode</button>
+    <button id="saveButton" class="hidden" onclick="saveBarcode()">Save Barcode</button>
     <div id="barcodeContainer">
       <canvas id="barcodeCanvas"></canvas>
+      <a id="barcodeLink" href="#" class="hidden">Link to barcode directly</a>
     </div>
     <footer>
       <p>Powered by <a href="https://github.com/lindell/JsBarcode" target="_blank">JsBarcode</a></p>
@@ -90,6 +104,16 @@
   <!-- Local JsBarcode Library with Versioning -->
   <script src="JsBarcode.all.min.js?v=1.0.0"></script>
   <script>
+    // Function to parse URL parameters
+    function getURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        data: params.get('data'),
+        code: params.get('code')
+      };
+    }
+
+    // Function to calculate checksum for EAN-13
     function calculateChecksum(number) {
       let sum = 0;
       for (let i = 0; i < number.length; i++) {
@@ -99,6 +123,7 @@
       return (10 - (sum % 10)) % 10;
     }
 
+    // Function to generate a barcode
     function generateBarcode() {
       const eanInput = document.getElementById("eanInput").value;
       if (!/^\d{12}$/.test(eanInput)) {
@@ -109,13 +134,68 @@
       const checksum = calculateChecksum(eanInput);
       const ean13 = eanInput + checksum;
 
+      drawBarcode(ean13);
+      document.getElementById("saveButton").classList.remove("hidden");
+
+      // Update the link
+      const barcodeLink = document.getElementById("barcodeLink");
+      barcodeLink.href = `index.html?data=${ean13}&code=EAN13`;
+      barcodeLink.classList.remove("hidden");
+    }
+
+    // Function to draw a barcode on the canvas
+    function drawBarcode(data) {
       const canvas = document.getElementById("barcodeCanvas");
-      JsBarcode(canvas, ean13, {
+      JsBarcode(canvas, data, {
         format: "EAN13",
         displayValue: true,
         fontSize: 18,
       });
+
+      // Save barcode number to data attribute for later use
+      const saveButton = document.getElementById("saveButton");
+      saveButton.setAttribute("data-barcode", data);
     }
+
+    // Function to save the barcode as an image
+    function saveBarcode() {
+      const canvas = document.getElementById("barcodeCanvas");
+      const barcodeNumber = document.getElementById("saveButton").getAttribute("data-barcode");
+      const pngData = canvas.toDataURL("image/png");
+
+      // Create an anchor element to download the image
+      const link = document.createElement("a");
+      link.href = pngData;
+      link.download = `${barcodeNumber}.png`;
+      link.click();
+    }
+
+    // On page load, check for URL parameters and toggle visibility
+    window.onload = () => {
+      const params = getURLParams();
+      const instructions = document.getElementById("instructions");
+      const eanInput = document.getElementById("eanInput");
+      const generateButton = document.getElementById("generateButton");
+
+      if (params.data && params.code && params.code.toUpperCase() === 'EAN13') {
+        // Hide input fields and instructions
+        instructions.classList.add("hidden");
+        eanInput.classList.add("hidden");
+        generateButton.classList.add("hidden");
+
+        // Generate barcode automatically
+        drawBarcode(params.data);
+
+        // Show save button and update the link
+        const saveButton = document.getElementById("saveButton");
+        saveButton.classList.remove("hidden");
+
+        const barcodeLink = document.getElementById("barcodeLink");
+        barcodeLink.href = `index.html?data=${params.data}&code=EAN13`;
+        barcodeLink.classList.remove("hidden");
+      }
+    };
   </script>
 </body>
 </html>
+
