@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Barcode Generator</title>
+<style>
+    /* General CSS for button styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 10px; /* Add padding for a nicer look */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    box-sizing: border-box; /* Ensure padding is included in dimensions */
+    overflow-y: auto; /* Allows scrolling if content exceeds page height */
+}
+
+.button-list {
+    width: 90%;
+    max-width: 600px;
+}
+
+.button-list button {
+    background-color: #ffb800;
+    color: white;
+    border: none;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+    font-size: 1.2rem;
+    width: 100%;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+
+    .button-list button:hover {
+        background-color: #ffa000;
+    }
+
+    /* Fullscreen overlay for popup */
+    .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .popup {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .popup canvas {
+        margin: 10px 0;
+        cursor: pointer;
+    }
+</style>
+
+</head>
+<body>
+    <div class="scrollable-container">
+        <div class="button-list" id="button-list">
+            <!-- Buttons will be dynamically added here -->
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="popup-overlay">
+        <div class="popup" id="popup">
+            <!-- Barcode will be generated here -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script>
+        // Array of products (name and code)
+        const products = [
+            { name: "Sumuštinis su rūkyta lašiša", code: "4772013112013" },
+            { name: "Pieninis šokoladas GEISHA", code: "4772013112020" },
+            { name: "Jeans Levis", code: "8009000008780" },
+            { name: "Adidas-new-collection", code: "5667900000094" },
+            { name: "Armani Traning Suite", code: "5677877900006" },
+            { name: "Poliarizuoti akiniai", code: "2330000002345" },
+            { name: "StrongPoint Pen", code: "4772013178958" },
+            { name: "StrongPoint Notebook", code: "4772013178941" },
+            { name: "StrongPoint saldainiai", code: "4772013120018" },
+            { name: "Šokoladinis pyragėlis iš picklisto", code: "4772013111030" },
+            { name: "Cinamoninė bandelė", code: "4772013111016" },
+            { name: "Bandelė su sezamo sėklomis", code: "4772013111023" },
+            { name: "Sviestinis raguolis", code: "4772013111047" },
+            { name: "Matcha arbata", code: "4772013110026" },
+            { name: "Kava latte", code: "4772013110033" },
+            { name: "Juoda arbata", code: "4772013110040" },
+            { name: "Kava", code: "4772013110057" },
+            { name: "Espresso", code: "4772013110064" }
+        ];
+
+        const buttonList = document.getElementById('button-list');
+        const popupOverlay = document.getElementById('popup-overlay');
+        const popup = document.getElementById('popup');
+
+        // Function to create buttons dynamically
+        function createButtons() {
+            products.forEach(product => {
+                const button = document.createElement('button');
+                button.textContent = product.name;
+                button.addEventListener('click', () => showBarcode(product.code));
+                buttonList.appendChild(button);
+            });
+        }
+
+        // Function to show the barcode popup
+        function showBarcode(code) {
+            popup.innerHTML = ''; // Clear previous content
+            const canvas = document.createElement('canvas'); // Create canvas for barcode
+            JsBarcode(canvas, code, { format: "EAN13", displayValue: true });
+            popup.appendChild(canvas);
+
+            // Add event listener to close popup when barcode is clicked
+            canvas.addEventListener('click', closePopup);
+
+            // Show the popup
+            popupOverlay.style.display = 'flex';
+
+            // Automatically close the popup after 10 seconds
+            setTimeout(closePopup, 10000);
+        }
+
+        // Function to close the popup
+        function closePopup() {
+            popupOverlay.style.display = 'none';
+        }
+
+        // Initialize the buttons on page load
+        createButtons();
+    </script>
+</body>
+</html>
