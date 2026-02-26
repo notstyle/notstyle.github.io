@@ -2,65 +2,59 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Gantt Planner</title>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Pako for URL-safe compressed JSON -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"
-    integrity="sha512-4zWMbRZz3hT3M3xvD2P2O8JDUp5TTpOqEsqIOmioQ8MwH8uN9RZk0Ire4wYl6TdiJkTuU4zH4t8d5mZ0bAjy0A=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer">
-  </script>
-
-  <!-- App -->
-  <script src="app.js" defer></script>
 </head>
-
 <body>
-
-  <h2>Gantt Planner</h2>
-
-  <div class="controls">
-      <input id="nameInput" placeholder="Name">
-      <input id="dateInput" type="date" title="Start date">
-      <input id="daysInput" type="number" min="1" placeholder="Days">
-      <button onclick="addTask()">Add</button>
+  <!-- Controls -->
+  <div class="controls mt-10" role="toolbar" aria-label="Gantt controls">
+    <input id="nameInput" class="input-name" placeholder="Task name" />
+    <input id="dateInput" class="input-date" type="date" />
+    <input id="daysInput" class="input-days" type="number" min="1" placeholder="Days" />
+    <button onclick="addTask()">Add</button>
+    <button class="secondary" onclick="clearAll()">Clear</button>
+    <button id="btnJsonOpen" class="secondary">JSON</button>
+    <button class="secondary" onclick="copyURL()">Share Link</button>
   </div>
 
-  <div class="controls mt-10">
-      <button id="btnJsonOpen" type="button">JSON</button>
-      <button onclick="clearAll()">Clear</button>
-      <button onclick="copyURL()">Copy URL</button>
+  <!-- Two-pane layout: left (tasks) + right (gantt). 
+       This wrapper must be allowed to grow vertically, so the page scrolls. -->
+  <div class="gantt-wrapper mt-10" aria-label="Gantt layout">
+    <!-- LEFT: Task list -->
+    <div id="ganttLeft" class="gantt-left" aria-label="Tasks"></div>
+
+    <!-- Resize handle between left and right -->
+    <div id="resizeHandle" class="resize-handle" aria-hidden="true"></div>
+
+    <!-- RIGHT: Gantt chart.
+         IMPORTANT: This element provides horizontal scrolling and is referenced by app.js as 'ganttScroll'. -->
+    <div id="ganttScroll" class="gantt-right" aria-label="Gantt chart">
+      <!-- Sticky time scale (month/day rows) -->
+      <div id="timeScale" class="time-scale"></div>
+
+      <!-- Chart grid will be injected here -->
+      <div id="ganttRight"></div>
+    </div>
   </div>
 
   <!-- JSON Modal -->
-  <div id="jsonModalOverlay" class="modal-overlay" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="jsonModalTitle">
+  <div id="jsonModalOverlay" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal">
       <div class="modal-header">
-        <h3 id="jsonModalTitle" class="modal-title">Import / Export JSON</h3>
+        <h3 class="modal-title">Tasks JSON</h3>
         <div class="modal-actions">
-          <button type="button" id="btnExport">Copy</button>
-          <button type="button" id="btnImport" title="Imports JSON from the text area below">Save</button>
-          <button type="button" id="btnClose">Close</button>
+          <button id="btnExport" class="secondary">Export</button>
+          <button id="btnImport">Import</button>
+          <button id="btnClose" class="secondary">Close</button>
         </div>
       </div>
       <div class="modal-body">
-        <textarea id="jsonArea" placeholder="JSON export / import"></textarea>
+        <textarea id="jsonArea" spellcheck="false"></textarea>
       </div>
     </div>
   </div>
 
-  <div class="gantt-wrapper">
-      <div class="gantt-left" id="ganttLeft"></div>
-      <div class="resize-handle" id="resizeHandle"></div>
-      <div class="gantt-right" id="ganttScroll">
-          <div class="time-scale" id="timeScale"></div>
-          <div id="ganttRight"></div>
-      </div>
-  </div>
-
+  <script src="app.js"></script>
 </body>
 </html>

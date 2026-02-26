@@ -5,34 +5,78 @@
   --barH: 22px;
 
   /* THEME — tweak these to recolor both buttons and bars */
-  --color-primary: #3a7afe;         /* main color (buttons + bars) */
-  --color-primary-hover: #1f6ef3;   /* hover state */
-  --color-primary-border: #2c62d6;  /* darker edge for definition */
-  --color-ink: #111;                /* text color for secondary buttons */
-  --color-secondary-bg: #e5e7eb;    /* secondary/neutral buttons */
+  --color-primary: #3a7afe; /* main color (buttons + bars) */
+  --color-primary-hover: #1f6ef3; /* hover state */
+  --color-primary-border: #2c62d6; /* darker edge for definition */
+  --color-ink: #111; /* text color for secondary buttons */
+  --color-secondary-bg: #e5e7eb; /* neutral buttons */
   --color-secondary-bg-hover: #dcdfe3;
 
   /* Radii */
-  --radius-md: 8px;  /* buttons + bars corners */
+  --radius-md: 8px;
   --radius-sm: 6px;
 }
 
-body { font-family: Arial, sans-serif; margin: 20px; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
 
-.mt-10 { margin-top: 10px; }
+.mt-10 {
+  margin-top: 10px;
+}
 
-.gantt-wrapper { display: flex; width: 100%; border: 1px solid #aaa; margin-top: 20px; overflow: hidden; }
-.resize-handle { width: 2px; cursor: col-resize; background: #ddd; border-right: 1px solid #bbb; flex-shrink: 0; }
-.resize-handle:hover { background: #ccc; }
+/* ========= LAYOUT WRAPPER FIX (no vertical scroll inside) ========= */
+.gantt-wrapper {
+  display: flex;
+  width: 100%;
+  border: 1px solid #aaa;
+  margin-top: 20px;
+  overflow: visible; /* allow content height to grow */
+}
 
-.gantt-left { width: 300px; flex-shrink: 0; border-right: 1px solid #ccc; background: #fafafa; padding-top: 67px; overflow-y: auto; max-height: 70vh; }
-.left-row { height: var(--rowH); display: flex; align-items: center; gap: 5px; padding: 0 5px; border-bottom: 1px solid #eee; background: #fff; }
-.left-row input { height: 22px; padding: 2px 4px; font-size: 12px; box-sizing: border-box; }
-.input-name  { width: 100%; }
-.input-date  { width: 120px; }
-.input-days  { width: 40px; }
+/* ========= LEFT PANEL — no independent vertical scroll ========= */
+.gantt-left {
+  width: 300px;
+  flex-shrink: 0;
+  border-right: 1px solid #ccc;
+  background: #fafafa;
+  padding-top: 67px;
 
-/* Drag handle at the left of each row */
+  overflow: visible;   /* PATCH: remove vertical scroll */
+  max-height: none;    /* PATCH: allow full height */
+}
+
+.left-row {
+  height: var(--rowH);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 5px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.left-row input {
+  height: 22px;
+  padding: 2px 4px;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.input-name {
+  width: 100%;
+}
+
+.input-date {
+  width: 120px;
+}
+
+.input-days {
+  width: 40px;
+}
+
+/* Drag handle */
 .drag-handle {
   flex: 0 0 16px;
   width: 16px;
@@ -44,41 +88,113 @@ body { font-family: Arial, sans-serif; margin: 20px; }
   cursor: grab;
   user-select: none;
 }
-.drag-handle:active { cursor: grabbing; }
-.left-row.dragging { opacity: 0.5; }
-.left-row.drag-over { background: #c8d7ff; }
 
-.gantt-right { flex-grow: 1; overflow: auto; position: relative; background: #fff; max-height: 70vh; }
-.time-scale { position: sticky; top: 0; z-index: 20; background: #f9f9f9; border-bottom: 1px solid #ccc; }
+.drag-handle:active {
+  cursor: grabbing;
+}
 
-.gantt-table { border-collapse: collapse; table-layout: fixed; width: max-content; user-select: none; }
-.gantt-table th, .gantt-table td { width: var(--dayW); height: 31px; padding: 0; margin: 0; border: 1px solid #eee; text-align: center; vertical-align: middle; position: relative; background-clip: padding-box; }
-.gantt-row-td { height: var(--rowH); border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-.gantt-table tr { position: relative; }
-.ts-day { font-size: 11px; background: #f9f9f9; font-weight: normal; height: 20px; }
-.ts-month { font-size: 12px; font-weight: bold; background: #f0f0f0; border-bottom: 1px solid #ddd; height: 28px; text-align: center; white-space: nowrap; padding: 0 4px; }
-.weekend { background: #e6e6e6 !important; }
+.left-row.dragging {
+  opacity: 0.5;
+}
 
-/* ===== Unified bar styling (rounded + same colors as buttons) ===== */
+.left-row.drag-over {
+  background: #c8d7ff;
+}
+
+/* ========= RIGHT PANEL — horizontal scroll only ========= */
+#ganttScroll,
+.gantt-right {
+  flex-grow: 1;
+
+  overflow-x: auto;    /* PATCH: keep only horizontal scroll */
+  overflow-y: visible; /* PATCH: remove vertical scrolling */
+
+  position: relative;
+  background: #fff;
+  max-height: none;    /* PATCH: remove height limit */
+}
+
+/* Sticky time scale */
+.time-scale {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: #f9f9f9;
+  border-bottom: 1px solid #ccc;
+}
+
+.gantt-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: max-content;
+  user-select: none;
+}
+
+.gantt-table th,
+.gantt-table td {
+  width: var(--dayW);
+  height: 31px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #eee;
+  text-align: center;
+  vertical-align: middle;
+  position: relative;
+  background-clip: padding-box;
+}
+
+.gantt-row-td {
+  height: var(--rowH);
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+.gantt-table tr {
+  position: relative;
+}
+
+.ts-day {
+  font-size: 11px;
+  background: #f9f9f9;
+  font-weight: normal;
+  height: 20px;
+}
+
+.ts-month {
+  font-size: 12px;
+  font-weight: bold;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+  height: 28px;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+.weekend {
+  background: #e6e6e6 !important;
+}
+
+/* ========= BAR STYLE ========= */
 .gantt-bar-abs {
   position: absolute;
   top: calc((var(--rowH) - var(--barH)) / 2);
   height: var(--barH);
-  /* Use the same color system as buttons */
+
   background: var(--color-primary);
   border: 1px solid var(--color-primary-border);
   border-radius: var(--radius-md);
   box-sizing: border-box;
   z-index: 5;
-  /* Subtle elevation and inner highlight for depth */
+
   box-shadow:
-    0 1px 0 rgba(0,0,0,0.06),
-    inset 0 0 0 1px rgba(255,255,255,0.28);
+    0 1px 0 rgba(0, 0, 0, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+
   cursor: grab;
   transition: box-shadow 0.05s ease, background-color 0.1s ease;
 }
 
-/* Drag/hover state mirrors button hover intensity */
 .gantt-bar-abs:hover {
   background: var(--color-primary-hover);
 }
@@ -90,22 +206,45 @@ body { font-family: Arial, sans-serif; margin: 20px; }
     inset 0 0 0 1px rgba(255,255,255,0.28);
 }
 
-/* Keep resize handles invisible/expanded for usability */
+/* Resize handles */
 .gantt-bar-abs .resize-handle-l,
 .gantt-bar-abs .resize-handle-r {
-  position: absolute; top: -4px; width: 10px; height: calc(var(--barH) + 8px);
-  background: transparent !important; border: none !important; opacity: 0; cursor: ew-resize; z-index: 6; pointer-events: auto;
+  position: absolute;
+  top: -4px;
+  width: 10px;
+  height: calc(var(--barH) + 8px);
+  background: transparent !important;
+  border: none !important;
+  opacity: 0;
+  cursor: ew-resize;
+  z-index: 6;
+  pointer-events: auto;
 }
-.gantt-bar-abs .resize-handle-l { left: -5px; }
-.gantt-bar-abs .resize-handle-r { right: -5px; }
 
-body.noselect, body.noselect * { user-select: none !important; }
+.gantt-bar-abs .resize-handle-l {
+  left: -5px;
+}
 
-/* Controls */
-.controls { display: flex; gap: 8px; flex-wrap: wrap; }
-.controls input { padding: 6px 8px; }
+.gantt-bar-abs .resize-handle-r {
+  right: -5px;
+}
 
-/* Modern rounded buttons — now use the same variables as bars */
+body.noselect,
+body.noselect * {
+  user-select: none !important;
+}
+
+/* ========= Controls ========= */
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.controls input {
+  padding: 6px 8px;
+}
+
 .controls button {
   padding: 8px 16px;
   cursor: pointer;
@@ -126,49 +265,93 @@ body.noselect, body.noselect * { user-select: none !important; }
   transform: scale(0.97);
 }
 
-/* Secondary buttons remain neutral */
 .controls button.secondary {
   background: var(--color-secondary-bg);
   color: var(--color-ink);
 }
+
 .controls button.secondary:hover {
   background: var(--color-secondary-bg-hover);
 }
 
-.input-date.invalid { outline: 2px solid #d92; box-shadow: 0 0 0 2px rgba(217,146,0,0.25); }
+.input-date.invalid {
+  outline: 2px solid #d92;
+  box-shadow: 0 0 0 2px rgba(217,146,0,0.25);
+}
 
-/* ===== JSON Modal ===== */
+/* ========= JSON Modal ========= */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-  display: none; align-items: center; justify-content: center; z-index: 9999;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
 }
+
 .modal {
-  background: #fff; width: min(720px, 92vw); max-height: 82vh; border-radius: var(--radius-md);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;
+  background: #fff;
+  width: min(720px, 92vw);
+  max-height: 82vh;
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
 .modal-header {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  padding: 10px 12px; border-bottom: 1px solid #eee; background: #f8f8f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  background: #f8f8f8;
 }
-.modal-title { font-size: 14px; font-weight: 600; margin: 0; }
-.modal-actions { display: flex; gap: 8px; }
-.modal-body { padding: 10px 12px 12px 12px; }
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-body {
+  padding: 10px 12px 12px 12px;
+}
 
 #jsonArea {
-  width: 100%; height: 280px; margin-top: 0;
-  display: block;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  width: 100%;
+  height: 280px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
 }
-
 
 input {
   border-radius: var(--radius-md);
 }
-
 
 .left-row input,
 .controls input {
   border-radius: var(--radius-md);
   border: 1px solid #d1d5db;
   padding: 4px 6px;
+}
+
+/* Resize handle separator */
+.resize-handle {
+  width: 2px;
+  cursor: col-resize;
+  background: #ddd;
+  border-right: 1px solid #bbb;
+  flex-shrink: 0;
+}
+
+.resize-handle:hover {
+  background: #ccc;
 }
