@@ -1,4 +1,21 @@
-:root { --dayW: 20px; --rowH: 31px; --barH: 22px; }
+:root {
+  /* Existing sizing variables */
+  --dayW: 20px;
+  --rowH: 31px;
+  --barH: 22px;
+
+  /* THEME — tweak these to recolor both buttons and bars */
+  --color-primary: #3a7afe;         /* main color (buttons + bars) */
+  --color-primary-hover: #1f6ef3;   /* hover state */
+  --color-primary-border: #2c62d6;  /* darker edge for definition */
+  --color-ink: #111;                /* text color for secondary buttons */
+  --color-secondary-bg: #e5e7eb;    /* secondary/neutral buttons */
+  --color-secondary-bg-hover: #dcdfe3;
+
+  /* Radii */
+  --radius-md: 8px;  /* buttons + bars corners */
+  --radius-sm: 6px;
+}
 
 body { font-family: Arial, sans-serif; margin: 20px; }
 
@@ -42,33 +59,81 @@ body { font-family: Arial, sans-serif; margin: 20px; }
 .ts-month { font-size: 12px; font-weight: bold; background: #f0f0f0; border-bottom: 1px solid #ddd; height: 28px; text-align: center; white-space: nowrap; padding: 0 4px; }
 .weekend { background: #e6e6e6 !important; }
 
+/* ===== Unified bar styling (rounded + same colors as buttons) ===== */
 .gantt-bar-abs {
   position: absolute;
   top: calc((var(--rowH) - var(--barH)) / 2);
   height: var(--barH);
-  background: #77b7ff;
-  border: 1px solid #4a7bbf;
-  border-radius: 3px;
+  /* Use the same color system as buttons */
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-md);
   box-sizing: border-box;
   z-index: 5;
-  box-shadow: 0 1px 0 rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.25);
+  /* Subtle elevation and inner highlight for depth */
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.28);
   cursor: grab;
-  transition: box-shadow 0.05s ease;
+  transition: box-shadow 0.05s ease, background-color 0.1s ease;
 }
-.gantt-bar-abs.dragging { cursor: grabbing; box-shadow: 0 2px 4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.25); }
 
+/* Drag/hover state mirrors button hover intensity */
+.gantt-bar-abs:hover {
+  background: var(--color-primary-hover);
+}
+
+.gantt-bar-abs.dragging {
+  cursor: grabbing;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.16),
+    inset 0 0 0 1px rgba(255,255,255,0.28);
+}
+
+/* Keep resize handles invisible/expanded for usability */
 .gantt-bar-abs .resize-handle-l,
 .gantt-bar-abs .resize-handle-r {
-    position: absolute; top: -4px; width: 10px; height: calc(var(--barH) + 8px);
-    background: transparent !important; border: none !important; opacity: 0; cursor: ew-resize; z-index: 6; pointer-events: auto;
+  position: absolute; top: -4px; width: 10px; height: calc(var(--barH) + 8px);
+  background: transparent !important; border: none !important; opacity: 0; cursor: ew-resize; z-index: 6; pointer-events: auto;
 }
 .gantt-bar-abs .resize-handle-l { left: -5px; }
 .gantt-bar-abs .resize-handle-r { right: -5px; }
 
 body.noselect, body.noselect * { user-select: none !important; }
+
+/* Controls */
 .controls { display: flex; gap: 8px; flex-wrap: wrap; }
 .controls input { padding: 6px 8px; }
-.controls button { padding: 6px 10px; cursor: pointer; }
+
+/* Modern rounded buttons — now use the same variables as bars */
+.controls button {
+  padding: 8px 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--color-primary);
+  color: white;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.controls button:hover {
+  background: var(--color-primary-hover);
+}
+
+.controls button:active {
+  transform: scale(0.97);
+}
+
+/* Secondary buttons remain neutral */
+.controls button.secondary {
+  background: var(--color-secondary-bg);
+  color: var(--color-ink);
+}
+.controls button.secondary:hover {
+  background: var(--color-secondary-bg-hover);
+}
 
 .input-date.invalid { outline: 2px solid #d92; box-shadow: 0 0 0 2px rgba(217,146,0,0.25); }
 
@@ -78,7 +143,7 @@ body.noselect, body.noselect * { user-select: none !important; }
   display: none; align-items: center; justify-content: center; z-index: 9999;
 }
 .modal {
-  background: #fff; width: min(720px, 92vw); max-height: 82vh; border-radius: 8px;
+  background: #fff; width: min(720px, 92vw); max-height: 82vh; border-radius: var(--radius-md);
   box-shadow: 0 12px 30px rgba(0,0,0,0.25); overflow: hidden; display: flex; flex-direction: column;
 }
 .modal-header {
@@ -93,4 +158,17 @@ body.noselect, body.noselect * { user-select: none !important; }
   width: 100%; height: 280px; margin-top: 0;
   display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+
+input {
+  border-radius: var(--radius-md);
+}
+
+
+.left-row input,
+.controls input {
+  border-radius: var(--radius-md);
+  border: 1px solid #d1d5db;
+  padding: 4px 6px;
 }
