@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gantt Planner</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Pako for URL-safe compressed JSON -->
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"
+    integrity="sha512-4zWMbRZz3hT3M3xvD2P2O8JDUp5TTpOqEsqIOmioQ8MwH8uN9RZk0Ire4wYl6TdiJkTuU4zH4t8d5mZ0bAjy0A=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer">
+  </script>
+
+  <!-- App -->
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+
+  <h2>Gantt Planner</h2>
+
+  <div class="controls">
+      <input id="nameInput" placeholder="Name">
+      <input id="dateInput" type="date" title="Start date">
+      <input id="daysInput" type="number" min="1" placeholder="Days">
+      <button onclick="addTask()">Add</button>
+  </div>
+
+  <div class="controls mt-10">
+      <button id="btnJsonOpen" type="button">JSON</button>
+      <button onclick="clearAll()">Clear</button>
+      <button onclick="copyURL()">Copy URL</button>
+  </div>
+
+  <!-- JSON Modal -->
+  <div id="jsonModalOverlay" class="modal-overlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="jsonModalTitle">
+      <div class="modal-header">
+        <h3 id="jsonModalTitle" class="modal-title">Import / Export JSON</h3>
+        <div class="modal-actions">
+          <button type="button" id="btnExport">Copy</button>
+          <button type="button" id="btnImport" title="Imports JSON from the text area below">Save</button>
+          <button type="button" id="btnClose">Close</button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <textarea id="jsonArea" placeholder="JSON export / import"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="gantt-wrapper">
+      <div class="gantt-left" id="ganttLeft"></div>
+      <div class="resize-handle" id="resizeHandle"></div>
+      <div class="gantt-right" id="ganttScroll">
+          <div class="time-scale" id="timeScale"></div>
+          <div id="ganttRight"></div>
+      </div>
+  </div>
+
+</body>
+</html>
