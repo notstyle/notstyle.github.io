@@ -304,12 +304,37 @@ function renderRight(){
     });
     container.appendChild(ganttTable);
 
+    // Today line — appended to ganttScroll so it spans timescale + rows
+    const ganttScroll = document.getElementById('ganttScroll');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayOffset = Math.round((today - min) / MS_PER_DAY);
+    let todayLineEl = null;
+    if (todayOffset >= 0 && todayOffset < totalDays) {
+        todayLineEl = document.createElement('div');
+        todayLineEl.id = 'todayLine';
+        todayLineEl.className = 'today-line';
+        todayLineEl._offset = todayOffset;
+        ganttScroll.appendChild(todayLineEl);
+    }
+
     const measured=measureDayStride(ganttTable);
     if(!measured || !isFinite(measured)){
         const v=getComputedStyle(document.documentElement).getPropertyValue('--dayW').trim();
         viewState.stride=parseFloat(v.replace('px','')) || 20;
     } else { viewState.stride=measured; }
     viewState.min=min;
+
+    // Position today line — measure after layout
+    const todayLine = document.getElementById('todayLine');
+    if (todayLine) {
+        const left = todayLine._offset * viewState.stride + viewState.stride / 2;
+        todayLine.style.left = left + 'px';
+        requestAnimationFrame(() => {
+            const scaleHeight = timeScale.offsetHeight || 0;
+            todayLine.style.top = scaleHeight + 'px';
+            todayLine.style.height = ganttTable.offsetHeight + 'px';
+        });
+    }
 
     const rows=ganttTable.rows;
     tasks.forEach((t,idx)=>{

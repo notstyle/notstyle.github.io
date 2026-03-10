@@ -375,6 +375,16 @@ input {
   overflow: hidden;
 }
 
+/* Today line */
+.today-line {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  background: #e53935;
+  z-index: 15;
+  pointer-events: none;
+}
+
 /* Resize handle separator */
 .resize-handle {
   width: 2px;
