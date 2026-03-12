@@ -29,7 +29,7 @@ function addTask(){
     const date = dateInput.value;
     const days = parseInt(daysInput.value);
     if(!name || !date || !days){ alert("Please fill in all fields."); return; }
-    tasks.push({name,date,days});
+    tasks.push({name,date,days,progress:0});
     save(); render();
 }
 
@@ -187,6 +187,10 @@ function renderLeft(){
             <input class="input-days" type="number" value="${t.days ?? ''}" min="1" placeholder="Days"
                    onchange="updateTask(${i},'days',parseInt(this.value))"
                    onmousedown="event.stopPropagation()">
+            <input class="input-progress" type="number" value="${t.progress ?? 0}" min="0" max="100" placeholder="%"
+                   title="Progress %"
+                   onchange="updateTask(${i},'progress',Math.min(100,Math.max(0,parseInt(this.value)||0)))"
+                   onmousedown="event.stopPropagation()">
         `;
 
         // Row is drop target
@@ -300,12 +304,37 @@ function renderRight(){
     });
     container.appendChild(ganttTable);
 
+    // Today line — appended to ganttScroll so it spans timescale + rows
+    const ganttScroll = document.getElementById('ganttScroll');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const todayOffset = Math.round((today - min) / MS_PER_DAY);
+    let todayLineEl = null;
+    if (todayOffset >= 0 && todayOffset < totalDays) {
+        todayLineEl = document.createElement('div');
+        todayLineEl.id = 'todayLine';
+        todayLineEl.className = 'today-line';
+        todayLineEl._offset = todayOffset;
+        ganttScroll.appendChild(todayLineEl);
+    }
+
     const measured=measureDayStride(ganttTable);
     if(!measured || !isFinite(measured)){
         const v=getComputedStyle(document.documentElement).getPropertyValue('--dayW').trim();
         viewState.stride=parseFloat(v.replace('px','')) || 20;
     } else { viewState.stride=measured; }
     viewState.min=min;
+
+    // Position today line — measure after layout
+    const todayLine = document.getElementById('todayLine');
+    if (todayLine) {
+        const left = todayLine._offset * viewState.stride + viewState.stride / 2;
+        todayLine.style.left = left + 'px';
+        requestAnimationFrame(() => {
+            const scaleHeight = timeScale.offsetHeight || 0;
+            todayLine.style.top = scaleHeight + 'px';
+            todayLine.style.height = ganttTable.offsetHeight + 'px';
+        });
+    }
 
     const rows=ganttTable.rows;
     tasks.forEach((t,idx)=>{
@@ -322,6 +351,20 @@ function renderRight(){
             bar.className="gantt-bar-abs";
             bar.style.left=(clampedOffset * viewState.stride)+"px";
             bar.style.width=Math.max(0,(visibleDays * viewState.stride) - 1)+"px";
+            // Progress fill
+            const prog = parseInt(t.progress ?? 0);
+            if (prog > 0) {
+                const fill = document.createElement('div');
+                fill.className = 'gantt-bar-fill';
+                fill.style.width = prog + '%';
+                bar.appendChild(fill);
+            }
+            // Progress label
+            const label = document.createElement('span');
+            label.className = 'gantt-bar-label';
+            label.textContent = (prog > 0 ? prog + '%' : '');
+            bar.appendChild(label);
+            // Resize handles last — highest z-index, must capture pointer events
             const hL=document.createElement('div'); hL.className='resize-handle-l';
             const hR=document.createElement('div'); hR.className='resize-handle-r';
             bar.appendChild(hL); bar.appendChild(hR);
